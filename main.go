@@ -1,11 +1,10 @@
 package main
 
 import (
-	"desingpatterns/command"
 	"fmt"
 	"io"
 	"net/http"
-	"time"
+	"sort"
 )
 
 type MyServer struct{}
@@ -47,7 +46,26 @@ func (s *BasicAuthMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
+type MyList []int
+
+func (m MyList) Len() int {
+	return len(m)
+}
+
+func (m MyList) Swap(i, j int) {
+	m[i], m[j] = m[j], m[i]
+}
+
+func (m MyList) Less(i, j int) bool {
+	return m[i] < m[j]
+}
+
 func main() {
+
+	var myList MyList = []int{6, 4, 2, 8, 1}
+	fmt.Println(myList)
+	sort.Sort(myList)
+	fmt.Println(myList)
 
 	// // COMMAND
 	// queue := command.CommandQueue{}
@@ -57,15 +75,15 @@ func main() {
 	// queue.AddCommand(command.CreateCommand("Fourth message"))
 	// queue.AddCommand(command.CreateCommand("Fifth message"))
 
-	var timeCommand command.Command2
-	timeCommand = &command.TimePassed{Start: time.Now()}
+	// var timeCommand command.Command2
+	// timeCommand = &command.TimePassed{Start: time.Now()}
 
-	var helloCommand command.Command2
-	helloCommand = &command.HelloMessage{}
+	// var helloCommand command.Command2
+	// helloCommand = &command.HelloMessage{}
 
-	time.Sleep(time.Second)
-	fmt.Println(timeCommand.Info())
-	fmt.Println(helloCommand.Info())
+	// time.Sleep(time.Second)
+	// fmt.Println(timeCommand.Info())
+	// fmt.Println(helloCommand.Info())
 
 	// http.Handle("/", &MyServer{})
 	// http.Handle("/", &LoggerServer{
