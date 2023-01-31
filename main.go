@@ -1,11 +1,11 @@
 package main
 
 import (
+	"desingpatterns/command"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
-	"os"
+	"time"
 )
 
 type MyServer struct{}
@@ -49,22 +49,40 @@ func (s *BasicAuthMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 
 func main() {
 
+	// // COMMAND
+	// queue := command.CommandQueue{}
+	// queue.AddCommand(command.CreateCommand("First message"))
+	// queue.AddCommand(command.CreateCommand("Second message"))
+	// queue.AddCommand(command.CreateCommand("Third message"))
+	// queue.AddCommand(command.CreateCommand("Fourth message"))
+	// queue.AddCommand(command.CreateCommand("Fifth message"))
+
+	var timeCommand command.Command2
+	timeCommand = &command.TimePassed{Start: time.Now()}
+
+	var helloCommand command.Command2
+	helloCommand = &command.HelloMessage{}
+
+	time.Sleep(time.Second)
+	fmt.Println(timeCommand.Info())
+	fmt.Println(helloCommand.Info())
+
 	// http.Handle("/", &MyServer{})
 	// http.Handle("/", &LoggerServer{
 	// 	LogWriter: os.Stdout,
 	// 	Handler:   &MyServer{},
 	// })
 
-	http.Handle("/", &LoggerServer{
-		Handler: &BasicAuthMiddleware{
-			Handler:  new(MyServer),
-			User:     "1111",
-			Password: "1111",
-		},
-		LogWriter: os.Stdout,
-	})
+	// http.Handle("/", &LoggerServer{
+	// 	Handler: &BasicAuthMiddleware{
+	// 		Handler:  new(MyServer),
+	// 		User:     "1111",
+	// 		Password: "1111",
+	// 	},
+	// 	LogWriter: os.Stdout,
+	// })
 
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	// log.Fatal(http.ListenAndServe(":8080", nil))
 
 	// f, _ := os.Create("name.txt")
 	// c := adapter.Counter{f}
