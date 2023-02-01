@@ -1,10 +1,12 @@
 package main
 
 import (
+	"desingpatterns/interpreter"
 	"fmt"
 	"io"
 	"net/http"
-	"sort"
+	"strconv"
+	"strings"
 )
 
 type MyServer struct{}
@@ -62,10 +64,32 @@ func (m MyList) Less(i, j int) bool {
 
 func main() {
 
-	var myList MyList = []int{6, 4, 2, 8, 1}
-	fmt.Println(myList)
-	sort.Sort(myList)
-	fmt.Println(myList)
+	// ITERPRETER
+	stack := interpreter.PolishNotationStack2{}
+	operators := strings.Split("3 4 sum 2 sub", " ")
+
+	for _, o := range operators {
+		if o == interpreter.SUM || o == interpreter.SUB {
+			right := stack.Pop()
+			left := stack.Pop()
+			mathFunc := interpreter.OperatorFactory(o, left, right)
+			res := interpreter.Value(mathFunc.Read())
+			stack.Push(&res)
+		} else {
+			val, err := strconv.Atoi(o)
+			if err != nil {
+				panic(err)
+			}
+			temp := interpreter.Value(val)
+			stack.Push(&temp)
+		}
+	}
+	println(int(stack.Pop().Read()))
+
+	// var myList MyList = []int{6, 4, 2, 8, 1}
+	// fmt.Println(myList)
+	// sort.Sort(myList)
+	// fmt.Println(myList)
 
 	// // COMMAND
 	// queue := command.CommandQueue{}

@@ -87,3 +87,13 @@ func (c *careTaker2) Pop() Memento2 {
 	}
 	return Memento2{}
 }
+
+type MementoFacade struct {
+	originator originator2
+	careTaker  careTaker2
+}
+
+func (m *MementoFacade) SaveSettings(s Command) {
+	m.originator.Command = s
+	m.careTaker.Add(m.originator.NewMemento2())
+}
