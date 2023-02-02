@@ -1,12 +1,10 @@
 package main
 
 import (
-	"desingpatterns/interpreter"
+	"desingpatterns/visitor"
 	"fmt"
 	"io"
 	"net/http"
-	"strconv"
-	"strings"
 )
 
 type MyServer struct{}
@@ -64,27 +62,65 @@ func (m MyList) Less(i, j int) bool {
 
 func main() {
 
-	// ITERPRETER
-	stack := interpreter.PolishNotationStack2{}
-	operators := strings.Split("3 4 sum 2 sub", " ")
-
-	for _, o := range operators {
-		if o == interpreter.SUM || o == interpreter.SUB {
-			right := stack.Pop()
-			left := stack.Pop()
-			mathFunc := interpreter.OperatorFactory(o, left, right)
-			res := interpreter.Value(mathFunc.Read())
-			stack.Push(&res)
-		} else {
-			val, err := strconv.Atoi(o)
-			if err != nil {
-				panic(err)
-			}
-			temp := interpreter.Value(val)
-			stack.Push(&temp)
-		}
+	// VISITOR
+	products := make([]visitor.Visitable2, 3)
+	products[0] = &visitor.Rice{
+		Product: visitor.Product{
+			Price: 32.0,
+			Name:  "Some rice",
+		},
 	}
-	println(int(stack.Pop().Read()))
+	products[1] = &visitor.Pasta{
+		Product: visitor.Product{
+			Price: 40.0,
+			Name:  "Some pasta",
+		},
+	}
+
+	products[2] = &visitor.Fridge{
+		Product: visitor.Product{
+			Price: 50,
+			Name:  "A fridge",
+		},
+	}
+
+	priceVisitor := &visitor.PriceVisitor{}
+
+	for _, p := range products {
+		p.Accept(priceVisitor)
+	}
+
+	fmt.Printf("Total: %f\n", priceVisitor.Sum)
+
+	nameVisitors := &visitor.NamePrinter{}
+
+	for _, p := range products {
+		p.Accept(nameVisitors)
+	}
+
+	fmt.Printf("\nProduct list:\n-------------\n%s", nameVisitors.Names)
+
+	// ITERPRETER
+	// stack := interpreter.PolishNotationStack2{}
+	// operators := strings.Split("3 4 sum 2 sub", " ")
+
+	// for _, o := range operators {
+	// 	if o == interpreter.SUM || o == interpreter.SUB {
+	// 		right := stack.Pop()
+	// 		left := stack.Pop()
+	// 		mathFunc := interpreter.OperatorFactory(o, left, right)
+	// 		res := interpreter.Value(mathFunc.Read())
+	// 		stack.Push(&res)
+	// 	} else {
+	// 		val, err := strconv.Atoi(o)
+	// 		if err != nil {
+	// 			panic(err)
+	// 		}
+	// 		temp := interpreter.Value(val)
+	// 		stack.Push(&temp)
+	// 	}
+	// }
+	// println(int(stack.Pop().Read()))
 
 	// var myList MyList = []int{6, 4, 2, 8, 1}
 	// fmt.Println(myList)
