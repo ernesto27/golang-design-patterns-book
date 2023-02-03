@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 	"sync"
+	"time"
 )
 
 type MyServer struct{}
@@ -71,22 +72,79 @@ func toUpperAsync(word string, f func(string)) {
 	}()
 }
 
+func sendString(ch chan<- string, s string) {
+	ch <- s
+}
+
+func reciever(helloCh, goodbyeCh <-chan string, quitCh chan<- bool) {
+	for {
+		select {
+		case msg := <-helloCh:
+			println(msg)
+		case mgs := <-goodbyeCh:
+			println(mgs)
+		case <-time.After(time.Second * 2):
+			println("Nothing received in 2 seconds. Exiting")
+			quitCh <- true
+			break
+		}
+	}
+}
+
 var wait sync.WaitGroup
 
 func main() {
+
+	ch := make(chan int)
+
+	go func() {
+		ch <- 1
+		time.Sleep(time.Second)
+
+		ch <- 2
+
+		close(ch)
+	}()
+
+	for v := range ch {
+		println(v)
+	}
+
+	// helloCh := make(chan string, 1)
+	// goodbyeCh := make(chan string, 1)
+	// quitCh := make(chan bool)
+
+	// go reciever(helloCh, goodbyeCh, quitCh)
+
+	// go sendString(helloCh, "hello!")
+	// time.Sleep(time.Second)
+	// go sendString(goodbyeCh, "goodbye!")
+	// <-quitCh
+
+	// channel := make(chan string, 1)
+
+	// go func() {
+	// 	channel <- "Hello world"
+	// 	println("Finish goroutiners")
+	// }()
+
+	// time.Sleep(time.Second)
+
+	// message := <-channel
+	// println(message)
 
 	// toUpperSync("Hello callbacks", func(s string) {
 	// 	fmt.Println(s)
 	// })
 
-	wait.Add(1)
-	toUpperAsync("hello callback", func(s string) {
-		fmt.Println(s)
-		wait.Done()
-	})
+	// wait.Add(1)
+	// toUpperAsync("hello callback", func(s string) {
+	// 	fmt.Println(s)
+	// 	wait.Done()
+	// })
 
-	fmt.Println("HI")
-	wait.Wait()
+	// fmt.Println("HI")
+	// wait.Wait()
 
 	// GOROUTINES
 	// var wait sync.WaitGroup
