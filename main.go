@@ -1,10 +1,11 @@
 package main
 
 import (
-	"desingpatterns/visitor"
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
+	"sync"
 )
 
 type MyServer struct{}
@@ -60,45 +61,93 @@ func (m MyList) Less(i, j int) bool {
 	return m[i] < m[j]
 }
 
+func toUpperSync(word string, f func(string)) {
+	f(strings.ToUpper(word))
+}
+
+func toUpperAsync(word string, f func(string)) {
+	go func() {
+		f(strings.ToUpper(word))
+	}()
+}
+
+var wait sync.WaitGroup
+
 func main() {
 
+	// toUpperSync("Hello callbacks", func(s string) {
+	// 	fmt.Println(s)
+	// })
+
+	wait.Add(1)
+	toUpperAsync("hello callback", func(s string) {
+		fmt.Println(s)
+		wait.Done()
+	})
+
+	fmt.Println("HI")
+	wait.Wait()
+
+	// GOROUTINES
+	// var wait sync.WaitGroup
+
+	// goRoutines := 5
+	// wait.Add(goRoutines)
+
+	// for i := 0; i < goRoutines; i++ {
+	// 	go func(goRoutineID int) {
+	// 		fmt.Printf("ID:%d: Hello goroutines!\n", goRoutineID)
+	// 		wait.Done()
+	// 	}(i)
+	// }
+	// wait.Wait()
+
 	// VISITOR
-	products := make([]visitor.Visitable2, 3)
-	products[0] = &visitor.Rice{
-		Product: visitor.Product{
-			Price: 32.0,
-			Name:  "Some rice",
-		},
-	}
-	products[1] = &visitor.Pasta{
-		Product: visitor.Product{
-			Price: 40.0,
-			Name:  "Some pasta",
-		},
-	}
+	// start := state.StartState{}
+	// game := state.GameContext{
+	// 	Next: &start,
+	// }
 
-	products[2] = &visitor.Fridge{
-		Product: visitor.Product{
-			Price: 50,
-			Name:  "A fridge",
-		},
-	}
+	// for game.Next.ExecuteState(&game) {
+	// }
 
-	priceVisitor := &visitor.PriceVisitor{}
+	// // VISITOR
+	// products := make([]visitor.Visitable2, 3)
+	// products[0] = &visitor.Rice{
+	// 	Product: visitor.Product{
+	// 		Price: 32.0,
+	// 		Name:  "Some rice",
+	// 	},
+	// }
+	// products[1] = &visitor.Pasta{
+	// 	Product: visitor.Product{
+	// 		Price: 40.0,
+	// 		Name:  "Some pasta",
+	// 	},
+	// }
 
-	for _, p := range products {
-		p.Accept(priceVisitor)
-	}
+	// products[2] = &visitor.Fridge{
+	// 	Product: visitor.Product{
+	// 		Price: 50,
+	// 		Name:  "A fridge",
+	// 	},
+	// }
 
-	fmt.Printf("Total: %f\n", priceVisitor.Sum)
+	// priceVisitor := &visitor.PriceVisitor{}
 
-	nameVisitors := &visitor.NamePrinter{}
+	// for _, p := range products {
+	// 	p.Accept(priceVisitor)
+	// }
 
-	for _, p := range products {
-		p.Accept(nameVisitors)
-	}
+	// fmt.Printf("Total: %f\n", priceVisitor.Sum)
 
-	fmt.Printf("\nProduct list:\n-------------\n%s", nameVisitors.Names)
+	// nameVisitors := &visitor.NamePrinter{}
+
+	// for _, p := range products {
+	// 	p.Accept(nameVisitors)
+	// }
+
+	// fmt.Printf("\nProduct list:\n-------------\n%s", nameVisitors.Names)
 
 	// ITERPRETER
 	// stack := interpreter.PolishNotationStack2{}
